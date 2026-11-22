@@ -1,0 +1,1138 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl" class="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>استوديو التخطيط الشخصي والحياة اليومية V4 | Life & Routine Studio</title>
+    
+    <!-- أيقونة علامة التبويب المخصصة V4 باللون الأزرق السماوي -->
+    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='16' fill='%230284C7'/%3E%3Ctext x='50%25' y='54%25' dominant-baseline='middle' text-anchor='middle' fill='%23ffffff' font-family='sans-serif' font-weight='900' font-size='28'%3EV4%3C/text%3E%3C/svg%3E">
+
+    <!-- الخط العربي Tajawal -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700;800;900&display=swap" rel="stylesheet">
+    
+    <!-- Tailwind CSS & Lucide Icons -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/lucide@latest"></script>
+
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    fontFamily: { sans: ['Tajawal', 'sans-serif'] },
+                    colors: {
+                        azure: {
+                            50: '#f0f9ff',
+                            100: '#e0f2fe',
+                            500: '#0ea5e9',
+                            600: '#0284c7',
+                            700: '#0369a1',
+                            900: '#0c4a6e'
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+
+    <style>
+        .no-scrollbar::-webkit-scrollbar { display: none; }
+        .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+        .heatmap-cell { transition: transform 0.15s ease; }
+        .heatmap-cell:hover { transform: scale(1.2); }
+    </style>
+</head>
+<body class="bg-slate-50 text-slate-800 dark:bg-slate-950 dark:text-slate-100 font-sans min-h-screen flex flex-col">
+
+    <!-- حاوية الإشعارات الذكية -->
+    <div id="toast-container" class="fixed bottom-5 left-5 z-50 flex flex-col gap-2 pointer-events-none"></div>
+
+    <!-- الشريط العلوي (Top Header) -->
+    <header class="sticky top-0 z-40 backdrop-blur-md bg-white/90 dark:bg-slate-900/90 border-b border-slate-200 dark:border-slate-800">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between gap-3">
+            
+            <!-- الشعار الأزرق السماوي V4 -->
+            <div class="flex items-center gap-3">
+                <div class="w-10 h-10 rounded-2xl bg-sky-600 flex items-center justify-center text-white font-black text-sm shadow-lg shadow-sky-600/25">
+                    V4
+                </div>
+                <div>
+                    <h1 class="font-extrabold text-base sm:text-lg text-slate-900 dark:text-white leading-tight">استوديو التخطيط الشخصي</h1>
+                    <p class="text-[11px] text-slate-500 dark:text-slate-400 hidden sm:block">روتينك • أهدافك • عاداتك • يومياتك في مكان واحد</p>
+                </div>
+            </div>
+
+            <!-- شريط "الخطوة الحالية" الحي (Live Now Bar) -->
+            <div id="live-now-pill" onclick="switchV4Tab('routine')" class="hidden md:flex items-center gap-2.5 px-4 py-1.5 rounded-full bg-sky-50 dark:bg-sky-950/60 border border-sky-200 dark:border-sky-800 cursor-pointer hover:bg-sky-100 dark:hover:bg-sky-900/60 transition-colors">
+                <span class="w-2 h-2 rounded-full bg-sky-500 animate-ping"></span>
+                <span class="text-xs font-bold text-sky-800 dark:text-sky-200" id="header-now-text">الخطوة الحالية: حدد فقرة في روتينك اليومي</span>
+            </div>
+
+            <!-- أدوات النسخ الاحتياطي والمظهر -->
+            <div class="flex items-center gap-2">
+                <button onclick="exportV4Backup()" class="hidden sm:flex items-center gap-1.5 px-3 py-2 rounded-xl bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-xs font-bold">
+                    <i data-lucide="download" class="w-3.5 h-3.5 text-sky-600"></i> حفظ نسخة
+                </button>
+                <label class="hidden sm:flex items-center gap-1.5 px-3 py-2 rounded-xl bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-xs font-bold cursor-pointer">
+                    <i data-lucide="upload" class="w-3.5 h-3.5 text-sky-600"></i> استعادة
+                    <input type="file" accept=".json" onchange="importV4Backup(event)" class="hidden">
+                </label>
+                <button onclick="toggleDarkMode()" aria-label="تبديل المظهر" class="p-2.5 rounded-xl bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-600 dark:text-slate-300">
+                    <i data-lucide="moon" id="icon-moon" class="w-4 h-4 hidden"></i>
+                    <i data-lucide="sun" id="icon-sun" class="w-4 h-4"></i>
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <!-- المحتوى الرئيسي -->
+    <main class="flex-grow max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-6">
+        
+        <!-- شريط التبويبات الثمانية -->
+        <nav id="v4-tabs-nav" class="flex overflow-x-auto pb-2 mb-6 gap-2 no-scrollbar"></nav>
+
+        <!-- ========================================================= -->
+        <!-- 1. لوحة التوازن الشخصي والملخص (Life Dashboard)           -->
+        <!-- ========================================================= -->
+        <section id="sec-dashboard" class="v4-sec space-y-6">
+            <!-- بطاقة الترحيب والأولويات الثلاث لليوم (Daily Top 3) -->
+            <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+                <div class="lg:col-span-7 bg-gradient-to-bl from-sky-600 to-blue-700 text-white p-6 sm:p-8 rounded-3xl shadow-xl shadow-sky-600/15 flex flex-col justify-between">
+                    <div>
+                        <div class="flex items-center justify-between mb-3">
+                            <span class="px-3 py-1 rounded-full bg-white/15 text-xs font-bold" id="today-date-badge">اليوم</span>
+                            <span class="text-xs opacity-90">قاعدة الأولويات الثلاث 🎯</span>
+                        </div>
+                        <h2 class="text-2xl sm:text-3xl font-black mb-2">ما هي أهم 3 إنجازات تجعل يومك رائعاً؟</h2>
+                        <p class="text-xs sm:text-sm text-sky-100 mb-6">التركيز على 3 أولويات واضحة يبعد التشتت ويمنحك شعوراً حقيقياً بالإنجاز.</p>
+                    </div>
+
+                    <div id="top3-list" class="space-y-2.5"></div>
+                </div>
+
+                <!-- بطاقات الإحصائيات السريعة -->
+                <div class="lg:col-span-5 grid grid-cols-2 gap-4">
+                    <div class="bg-white dark:bg-slate-900 p-5 rounded-3xl border border-slate-200 dark:border-slate-800 flex flex-col justify-between">
+                        <span class="w-10 h-10 rounded-2xl bg-sky-50 dark:bg-sky-950 text-sky-600 flex items-center justify-center"><i data-lucide="sun-medium" class="w-5 h-5"></i></span>
+                        <div class="mt-4">
+                            <div class="text-2xl font-black text-sky-600" id="dash-routine-pct">0%</div>
+                            <div class="text-xs font-bold text-slate-500">إنجاز روتين اليوم</div>
+                        </div>
+                    </div>
+
+                    <div class="bg-white dark:bg-slate-900 p-5 rounded-3xl border border-slate-200 dark:border-slate-800 flex flex-col justify-between">
+                        <span class="w-10 h-10 rounded-2xl bg-amber-50 dark:bg-amber-950 text-amber-500 flex items-center justify-center"><i data-lucide="flame" class="w-5 h-5"></i></span>
+                        <div class="mt-4">
+                            <div class="text-2xl font-black text-amber-500" id="dash-best-streak">0 يوم</div>
+                            <div class="text-xs font-bold text-slate-500">أطول سلسلة التزام</div>
+                        </div>
+                    </div>
+
+                    <div class="bg-white dark:bg-slate-900 p-5 rounded-3xl border border-slate-200 dark:border-slate-800 flex flex-col justify-between">
+                        <span class="w-10 h-10 rounded-2xl bg-emerald-50 dark:bg-emerald-950 text-emerald-600 flex items-center justify-center"><i data-lucide="target" class="w-5 h-5"></i></span>
+                        <div class="mt-4">
+                            <div class="text-2xl font-black text-emerald-600" id="dash-goals-pct">0%</div>
+                            <div class="text-xs font-bold text-slate-500">متوسط تقدم الأهداف</div>
+                        </div>
+                    </div>
+
+                    <div class="bg-white dark:bg-slate-900 p-5 rounded-3xl border border-slate-200 dark:border-slate-800 flex flex-col justify-between">
+                        <span class="w-10 h-10 rounded-2xl bg-indigo-50 dark:bg-indigo-950 text-indigo-600 flex items-center justify-center"><i data-lucide="smile" class="w-5 h-5"></i></span>
+                        <div class="mt-4">
+                            <div class="text-2xl font-black text-indigo-600" id="dash-avg-energy">- / 5</div>
+                            <div class="text-xs font-bold text-slate-500">متوسط الطاقة والمزاج</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- نظرة سريعة على أقرب مناسبة + اقتراح عشوائي من قوائمك -->
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div class="bg-white dark:bg-slate-900 p-6 rounded-3xl border border-slate-200 dark:border-slate-800 flex items-center justify-between gap-4">
+                    <div>
+                        <span class="text-xs font-bold text-sky-600 block mb-1">⏳ أقرب محطة قادمة</span>
+                        <h3 class="font-extrabold text-lg" id="dash-next-event-title">لا توجد مناسبات قادمة</h3>
+                        <p class="text-xs text-slate-500 mt-1" id="dash-next-event-days">أضف مناسباتك من تبويب اللحظات والمناسبات</p>
+                    </div>
+                    <button onclick="switchV4Tab('moments')" class="px-4 py-2 rounded-xl bg-sky-50 dark:bg-sky-950 text-sky-600 font-bold text-xs shrink-0">عرض الكل</button>
+                </div>
+
+                <div class="bg-white dark:bg-slate-900 p-6 rounded-3xl border border-slate-200 dark:border-slate-800 flex items-center justify-between gap-4">
+                    <div>
+                        <span class="text-xs font-bold text-amber-500 block mb-1">🎲 محتار ماذا تفعل الآن؟</span>
+                        <h3 class="font-extrabold text-base" id="dash-random-pick">اضغط لاختيار نشاط أو فكرة من خزينتك</h3>
+                    </div>
+                    <button onclick="pickRandomLifeIdea()" class="px-4 py-2.5 rounded-xl bg-sky-600 hover:bg-sky-700 text-white font-bold text-xs shrink-0">اختر لي!</button>
+                </div>
+            </div>
+        </section>
+
+        <!-- ========================================================= -->
+        <!-- 2. مصمم الروتين اليومي ووضع الخطوة الحالية (Daily Routine)  -->
+        <!-- ========================================================= -->
+        <section id="sec-routine" class="v4-sec hidden space-y-6">
+            <!-- شريط الخطوة الحالية التفاعلي (Now Mode) -->
+            <div class="bg-white dark:bg-slate-900 p-6 rounded-3xl border-2 border-sky-500/40 shadow-sm flex flex-col sm:flex-row items-center justify-between gap-4">
+                <div class="flex items-center gap-4">
+                    <div class="w-12 h-12 rounded-2xl bg-sky-600 text-white flex items-center justify-center shrink-0">
+                        <i data-lucide="play-circle" class="w-6 h-6"></i>
+                    </div>
+                    <div>
+                        <span class="text-[11px] font-bold text-sky-600 uppercase tracking-wider">وضع التركيز الحي (الخطوة الحالية)</span>
+                        <h3 class="font-black text-lg sm:text-xl" id="now-mode-title">اختر فقرة من روتينك للتركيز عليها الآن</h3>
+                        <p class="text-xs text-slate-500" id="now-mode-meta">انقر على زر "تركيز الآن" بجانب أي فقرة في جدولك</p>
+                    </div>
+                </div>
+                <div class="flex items-center gap-2 shrink-0">
+                    <button onclick="completeCurrentRoutineStep()" id="btn-complete-now" class="hidden px-4 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs">أتممتها ✓</button>
+                    <button onclick="resetRoutineDay()" class="px-4 py-2.5 rounded-xl bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 text-xs font-bold">بدء يوم جديد</button>
+                </div>
+            </div>
+
+            <!-- قوالب الروتين + إضافة فقرة جديدة -->
+            <div class="bg-white dark:bg-slate-900 p-5 rounded-3xl border border-slate-200 dark:border-slate-800 space-y-4">
+                <div class="flex flex-wrap items-center justify-between gap-3">
+                    <div class="flex items-center gap-2">
+                        <span class="text-xs font-bold text-slate-500">القالب النشط:</span>
+                        <select id="routine-template-select" onchange="switchRoutineTemplate(this.value)" class="px-3 py-2 rounded-xl bg-sky-50 dark:bg-sky-950 text-sky-700 dark:text-sky-300 font-bold text-xs focus:outline-none">
+                            <option value="workday">📅 روتين أيام العمل والدراسة</option>
+                            <option value="weekend">🌴 روتين عطلة نهاية الأسبوع</option>
+                            <option value="deep">⚡ روتين التركيز المكثف</option>
+                        </select>
+                    </div>
+                </div>
+
+                <form id="routine-add-form" class="grid grid-cols-1 sm:grid-cols-5 gap-2">
+                    <select id="rt-period" class="px-3 py-2.5 rounded-xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-xs font-bold">
+                        <option value="morning">🌅 الصباح</option>
+                        <option value="afternoon">☀️ الظهيرة</option>
+                        <option value="evening">🌇 المساء</option>
+                        <option value="night">🌙 الليل</option>
+                    </select>
+                    <input type="text" id="rt-time" placeholder="الوقت (مثال: 07:30 ص)" class="px-3 py-2.5 rounded-xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-xs">
+                    <input type="text" id="rt-title" required placeholder="عنوان الفقرة (مثال: قراءة 20 صفحة)..." class="sm:col-span-2 px-3 py-2.5 rounded-xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-xs">
+                    <button type="submit" class="py-2.5 rounded-xl bg-sky-600 hover:bg-sky-700 text-white font-bold text-xs">+ إضافة للروتين</button>
+                </form>
+            </div>
+
+            <!-- فترات اليوم الأربعة -->
+            <div id="routine-periods-grid" class="grid grid-cols-1 md:grid-cols-2 gap-6"></div>
+        </section>
+
+        <!-- ========================================================= -->
+        <!-- 3. لوحة الأهداف الكبرى والمحطات (Life Goals & Milestones)  -->
+        <!-- ========================================================= -->
+        <section id="sec-goals" class="v4-sec hidden space-y-6">
+            <div class="bg-white dark:bg-slate-900 p-5 rounded-3xl border border-slate-200 dark:border-slate-800">
+                <h2 class="font-extrabold text-lg mb-3">إضافة هدف شخصي جديد</h2>
+                <form id="goal-form" class="grid grid-cols-1 sm:grid-cols-4 gap-2.5">
+                    <input type="text" id="goal-title" required placeholder="عنوان الهدف (مثال: تعلم لغة جديدة)..." class="sm:col-span-2 px-3.5 py-2.5 rounded-xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-xs">
+                    <select id="goal-domain" class="px-3 py-2.5 rounded-xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-xs font-bold">
+                        <option value="edu">🎓 تعليم وتطوير</option>
+                        <option value="health">💪 صحة ولياقة</option>
+                        <option value="creative">🎨 مشاريع وإبداع</option>
+                        <option value="personal">🌱 عادات وشخصية</option>
+                    </select>
+                    <button type="submit" class="py-2.5 rounded-xl bg-sky-600 hover:bg-sky-700 text-white font-bold text-xs">+ إنشاء الهدف</button>
+                </form>
+            </div>
+
+            <div id="goals-grid" class="grid grid-cols-1 md:grid-cols-2 gap-6"></div>
+        </section>
+
+        <!-- ========================================================= -->
+        <!-- 4. متتبع العادات وسلسلة الالتزام (Habit & Streak Engine)   -->
+        <!-- ========================================================= -->
+        <section id="sec-habits" class="v4-sec hidden space-y-6">
+            <div class="bg-white dark:bg-slate-900 p-6 rounded-3xl border border-slate-200 dark:border-slate-800">
+                <div class="flex flex-wrap items-center justify-between gap-3 mb-4">
+                    <div>
+                        <h2 class="font-extrabold text-lg">خريطة الالتزام الشهرية (30 يوماً)</h2>
+                        <p class="text-xs text-slate-500">كل مربع يمثل يوماً من الشهر؛ يزداد عمق اللون الأزرق كلما أنجزت عادات أكثر في ذلك اليوم.</p>
+                    </div>
+                    <form id="habit-v4-form" class="flex gap-2">
+                        <input type="text" id="habit-v4-name" required placeholder="اسم العادة الجديدة..." class="px-3.5 py-2 rounded-xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-xs">
+                        <button type="submit" class="px-4 py-2 rounded-xl bg-sky-600 hover:bg-sky-700 text-white font-bold text-xs">+ عادة</button>
+                    </form>
+                </div>
+
+                <!-- شبكة خريطة الالتزام الشهرية -->
+                <div id="habit-heatmap-grid" class="grid grid-cols-10 sm:grid-cols-15 gap-1.5 p-4 rounded-2xl bg-slate-50 dark:bg-slate-800/60"></div>
+            </div>
+
+            <!-- بطاقات العادات وسلاسل الاستمرار -->
+            <div id="habits-v4-cards" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5"></div>
+        </section>
+
+        <!-- ========================================================= -->
+        <!-- 5. مخطط الأسبوع والأولويات (Weekly Planner & Backlog)     -->
+        <!-- ========================================================= -->
+        <section id="sec-weekly" class="v4-sec hidden space-y-6">
+            <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+                <!-- الأيام السبعة -->
+                <div class="lg:col-span-9 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-4" id="weekly-days-grid"></div>
+
+                <!-- صندوق المهام المؤجلة (Someday / Backlog) -->
+                <div class="lg:col-span-3 bg-white dark:bg-slate-900 p-5 rounded-3xl border border-slate-200 dark:border-slate-800 h-fit space-y-3">
+                    <h3 class="font-extrabold text-base flex items-center gap-2">
+                        <i data-lucide="inbox" class="w-4 h-4 text-sky-600"></i>
+                        صندوق المؤجلات
+                    </h3>
+                    <p class="text-[11px] text-slate-500">أفكار ومهام غير مستعجلة؛ انقلها لأي يوم عندما يحين وقتها.</p>
+                    <form id="backlog-form" class="flex gap-1.5">
+                        <input type="text" id="backlog-input" required placeholder="مهمة مؤجلة..." class="flex-1 px-3 py-2 rounded-xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-xs">
+                        <button type="submit" class="px-3 py-2 rounded-xl bg-sky-600 text-white font-bold text-xs">+</button>
+                    </form>
+                    <div id="backlog-list" class="space-y-2"></div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ========================================================= -->
+        <!-- 6. سجل اليوميات، المزاج، والتأمل السريع (Daily Journal)   -->
+        <!-- ========================================================= -->
+        <section id="sec-journal" class="v4-sec hidden">
+            <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+                <!-- محرر تدوينة اليوم -->
+                <div class="lg:col-span-7 bg-white dark:bg-slate-900 p-6 rounded-3xl border border-slate-200 dark:border-slate-800 space-y-4">
+                    <div class="flex items-center justify-between">
+                        <h2 class="font-extrabold text-lg">تدوينة وتأمل اليوم</h2>
+                        <input type="date" id="journal-date-picker" onchange="loadJournalEntryForDate(this.value)" class="px-3 py-1.5 rounded-xl bg-slate-100 dark:bg-slate-800 text-xs font-bold">
+                    </div>
+
+                    <!-- اختيار المزاج ومستوى الطاقة -->
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 p-4 rounded-2xl bg-sky-50/60 dark:bg-slate-800/70">
+                        <div>
+                            <label class="text-xs font-bold block mb-2">كيف تصف شعورك اليوم؟</label>
+                            <div class="flex gap-1.5" id="mood-buttons">
+                                <button type="button" onclick="selectJournalMood('😄 نشيط')" class="mood-btn px-2.5 py-1.5 rounded-xl bg-white dark:bg-slate-900 text-xs font-bold border border-slate-200 dark:border-slate-700">😄 نشيط</button>
+                                <button type="button" onclick="selectJournalMood('😌 هادئ')" class="mood-btn px-2.5 py-1.5 rounded-xl bg-white dark:bg-slate-900 text-xs font-bold border border-slate-200 dark:border-slate-700">😌 هادئ</button>
+                                <button type="button" onclick="selectJournalMood('🔥 متحمس')" class="mood-btn px-2.5 py-1.5 rounded-xl bg-white dark:bg-slate-900 text-xs font-bold border border-slate-200 dark:border-slate-700">🔥 متحمس</button>
+                                <button type="button" onclick="selectJournalMood('😴 متعب')" class="mood-btn px-2.5 py-1.5 rounded-xl bg-white dark:bg-slate-900 text-xs font-bold border border-slate-200 dark:border-slate-700">😴 متعب</button>
+                            </div>
+                        </div>
+                        <div>
+                            <div class="flex justify-between text-xs font-bold mb-2">
+                                <span>مستوى الطاقة:</span>
+                                <span id="energy-val-label" class="text-sky-600">4 / 5</span>
+                            </div>
+                            <input type="range" id="journal-energy" min="1" max="5" value="4" oninput="document.getElementById('energy-val-label').textContent = this.value + ' / 5'" class="w-full accent-sky-600">
+                        </div>
+                    </div>
+
+                    <div class="space-y-3">
+                        <div>
+                            <label class="text-xs font-bold block mb-1">🏆 أبرز إنجاز حققته اليوم:</label>
+                            <input type="text" id="j-win" class="w-full px-3.5 py-2 rounded-xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-xs">
+                        </div>
+                        <div>
+                            <label class="text-xs font-bold block mb-1">🙏 شيء أشعر بالامتنان له اليوم:</label>
+                            <input type="text" id="j-gratitude" class="w-full px-3.5 py-2 rounded-xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-xs">
+                        </div>
+                        <div>
+                            <label class="text-xs font-bold block mb-1">💡 درس تعلمته أو مساحة كتابة حرة:</label>
+                            <textarea id="j-notes" rows="4" class="w-full p-3.5 rounded-xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-xs leading-relaxed"></textarea>
+                        </div>
+                    </div>
+
+                    <button onclick="saveJournalEntry()" class="w-full py-3 rounded-2xl bg-sky-600 hover:bg-sky-700 text-white font-bold text-xs">حفظ تدوينة اليوم ✓</button>
+                </div>
+
+                <!-- أرشيف اليوميات والبحث -->
+                <div class="lg:col-span-5 bg-white dark:bg-slate-900 p-6 rounded-3xl border border-slate-200 dark:border-slate-800 space-y-4 h-fit">
+                    <h3 class="font-extrabold text-base">أرشيف اليوميات والذكريات</h3>
+                    <input type="text" id="journal-search" oninput="renderJournalArchive()" placeholder="ابحث داخل تدويناتك السابقة..." class="w-full px-3.5 py-2 rounded-xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-xs">
+                    <div id="journal-archive-list" class="space-y-2.5 max-h-[430px] overflow-y-auto"></div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ========================================================= -->
+        <!-- 7. خزينة الأفكار، القوائم، والملهمات (Idea Vault & Lists)  -->
+        <!-- ========================================================= -->
+        <section id="sec-vault" class="v4-sec hidden space-y-6">
+            <div class="bg-white dark:bg-slate-900 p-5 rounded-3xl border border-slate-200 dark:border-slate-800 flex flex-wrap items-center justify-between gap-3">
+                <form id="vault-form" class="flex-1 flex flex-wrap sm:flex-nowrap gap-2">
+                    <input type="text" id="vault-item-text" required placeholder="التقط فكرة، كتاباً، مهارة، أو فيلماً..." class="flex-1 px-3.5 py-2.5 rounded-xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-xs">
+                    <select id="vault-item-cat" class="px-3 py-2.5 rounded-xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-xs font-bold">
+                        <option value="ideas">💡 أفكار ومشاريع</option>
+                        <option value="books">📚 كتب ومقالات</option>
+                        <option value="skills">🚀 مهارات للتعلم</option>
+                        <option value="watch">🎬 أفلام / أنمي</option>
+                        <option value="places">📍 أماكن وتجارب</option>
+                    </select>
+                    <button type="submit" class="px-5 py-2.5 rounded-xl bg-sky-600 hover:bg-sky-700 text-white font-bold text-xs">حفظ في الخزينة</button>
+                </form>
+                <button onclick="decideFromVault()" class="px-4 py-2.5 rounded-xl bg-amber-500 hover:bg-amber-600 text-white font-bold text-xs flex items-center gap-1.5">
+                    <i data-lucide="shuffle" class="w-4 h-4"></i> اختر لي عشوائياً!
+                </button>
+            </div>
+
+            <div id="vault-categories-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5"></div>
+        </section>
+
+        <!-- ========================================================= -->
+        <!-- 8. عدّاد اللحظات والمناسبات الخاصة (Life Moments)         -->
+        <!-- ========================================================= -->
+        <section id="sec-moments" class="v4-sec hidden space-y-6">
+            <div class="bg-white dark:bg-slate-900 p-5 rounded-3xl border border-slate-200 dark:border-slate-800">
+                <h2 class="font-extrabold text-lg mb-3">إضافة مناسبة قادمة أو عدّاد أيام منقضية</h2>
+                <form id="moment-form" class="grid grid-cols-1 sm:grid-cols-4 gap-2.5">
+                    <input type="text" id="moment-title" required placeholder="عنوان الحدث (مثال: الاختبار النهائي، بداية الرياضة)..." class="sm:col-span-2 px-3.5 py-2.5 rounded-xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-xs">
+                    <input type="date" id="moment-date" required class="px-3 py-2.5 rounded-xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-xs font-bold">
+                    <button type="submit" class="py-2.5 rounded-xl bg-sky-600 hover:bg-sky-700 text-white font-bold text-xs">+ إضافة للعدّاد</button>
+                </form>
+            </div>
+
+            <div id="moments-grid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5"></div>
+        </section>
+
+    </main>
+
+    <!-- التذييل -->
+    <footer class="border-t border-slate-200 dark:border-slate-800 py-5 mt-10">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col sm:flex-row items-center justify-between gap-2 text-xs text-slate-500">
+            <p>استوديو التخطيط الشخصي والحياة اليومية (V4) — جميع بياناتك محفوظة بخصوصية تامة داخل متصفحك.</p>
+            <p class="text-sky-600 font-bold">Azure Edition • V4</p>
+        </div>
+    </footer>
+
+    <!-- ========================================================= -->
+    <!-- المنطق البرمجي الشامل للنسخة الرابعة (JavaScript V4)       -->
+    <!-- ========================================================= -->
+    <script>
+        lucide.createIcons();
+        const TODAY_STR = new Date().toISOString().slice(0, 10);
+
+        // ---------------------------------------------------------
+        // 1. الإشعارات، الوضع الليلي، والتنقل بين التبويبات
+        // ---------------------------------------------------------
+        function showToast(msg) {
+            const container = document.getElementById('toast-container');
+            const el = document.createElement('div');
+            el.className = 'bg-slate-900 dark:bg-white text-white dark:text-slate-900 px-4 py-2.5 rounded-2xl shadow-xl text-xs font-bold flex items-center gap-2 transition-all duration-300 opacity-0 translate-y-2';
+            el.innerHTML = `<i data-lucide="check-circle-2" class="w-4 h-4 text-sky-500"></i><span>${msg}</span>`;
+            container.appendChild(el);
+            lucide.createIcons();
+            requestAnimationFrame(() => el.classList.remove('opacity-0', 'translate-y-2'));
+            setTimeout(() => { el.classList.add('opacity-0', 'translate-y-2'); setTimeout(() => el.remove(), 300); }, 2600);
+        }
+
+        function toggleDarkMode() {
+            document.documentElement.classList.toggle('dark');
+            const isDark = document.documentElement.classList.contains('dark');
+            localStorage.setItem('v4_theme', isDark ? 'dark' : 'light');
+            document.getElementById('icon-moon').classList.toggle('hidden', isDark);
+            document.getElementById('icon-sun').classList.toggle('hidden', !isDark);
+        }
+        if (localStorage.getItem('v4_theme') === 'dark') {
+            document.documentElement.classList.add('dark');
+            document.getElementById('icon-moon').classList.add('hidden');
+            document.getElementById('icon-sun').classList.remove('hidden');
+        }
+
+        const V4_TABS = [
+            { id: 'dashboard', name: 'لوحة التوازن والملخص', icon: 'layout-dashboard' },
+            { id: 'routine', name: 'الروتين اليومي', icon: 'sun' },
+            { id: 'goals', name: 'الأهداف والمحطات', icon: 'target' },
+            { id: 'habits', name: 'العادات وسلسلة الالتزام', icon: 'flame' },
+            { id: 'weekly', name: 'مخطط الأسبوع', icon: 'calendar-days' },
+            { id: 'journal', name: 'اليوميات والمزاج', icon: 'book-open' },
+            { id: 'vault', name: 'خزينة الأفكار والقوائم', icon: 'archive' },
+            { id: 'moments', name: 'اللحظات والمناسبات', icon: 'hourglass' }
+        ];
+
+        let activeV4Tab = 'dashboard';
+
+        function renderV4Tabs() {
+            document.getElementById('v4-tabs-nav').innerHTML = V4_TABS.map(t => {
+                const active = t.id === activeV4Tab;
+                return `
+                    <button onclick="switchV4Tab('${t.id}')" class="flex items-center gap-2 px-4 py-2.5 rounded-2xl text-xs font-bold whitespace-nowrap transition-all ${active ? 'bg-sky-600 text-white shadow-md shadow-sky-600/20' : 'bg-white dark:bg-slate-900 text-slate-600 dark:text-slate-300 border border-slate-200 dark:border-slate-800 hover:bg-slate-100 dark:hover:bg-slate-800'}">
+                        <i data-lucide="${t.icon}" class="w-4 h-4"></i>
+                        <span>${t.name}</span>
+                    </button>
+                `;
+            }).join('');
+            lucide.createIcons();
+        }
+
+        function switchV4Tab(id) {
+            activeV4Tab = id;
+            document.querySelectorAll('.v4-sec').forEach(s => s.classList.add('hidden'));
+            document.getElementById(`sec-${id}`).classList.remove('hidden');
+            renderV4Tabs();
+            if (id === 'dashboard') updateDashboardStats();
+        }
+
+        // ---------------------------------------------------------
+        // 2. حالة البيانات الموحدة (State & LocalStorage)
+        // ---------------------------------------------------------
+        let lifeData = JSON.parse(localStorage.getItem('life_studio_v4')) || {
+            top3: [
+                { text: 'إنجاز أهم مهمة في مشروعي الشخصي', done: false },
+                { text: 'ممارسة الرياضة أو المشي لمدة 30 دقيقة', done: false },
+                { text: 'القراءة وتدوين ملاحظات اليوم', done: false }
+            ],
+            activeRoutineTemplate: 'workday',
+            nowRoutineId: 1,
+            routines: {
+                workday: [
+                    { id: 1, period: 'morning', time: '07:00 ص', title: 'الاستيقاظ وشرب الماء + ترتيب السرير', done: false },
+                    { id: 2, period: 'morning', time: '08:30 ص', title: 'جلسة عمل عميق على الأولوية الأولى', done: false },
+                    { id: 3, period: 'afternoon', time: '02:00 م', title: 'استراحة الغداء والمشي الخفيف', done: false },
+                    { id: 4, period: 'evening', time: '07:00 م', title: 'تطوير مهارة جديدة أو قراءة كتاب', done: false },
+                    { id: 5, period: 'night', time: '10:30 م', title: 'تدوين اليوميات وتجهيز خطة الغد', done: false }
+                ],
+                weekend: [
+                    { id: 11, period: 'morning', time: '09:00 ص', title: 'فطور هادئ بعيداً عن الشاشات', done: false },
+                    { id: 12, period: 'afternoon', time: '04:00 م', title: 'لقاء العائلة أو الأصدقاء', done: false },
+                    { id: 13, period: 'night', time: '09:30 م', title: 'مراجعة الأسبوع وتحديث الأهداف', done: false }
+                ],
+                deep: [
+                    { id: 21, period: 'morning', time: '06:30 ص', title: 'فترة تركيز قصوى (90 دقيقة)', done: false },
+                    { id: 22, period: 'afternoon', time: '01:00 م', title: 'مراجعة التقدم وحل العقبات', done: false }
+                ]
+            },
+            goals: [
+                {
+                    id: 1, title: 'بناء عادة القراءة المستمرة', domain: 'edu', lastUpdated: TODAY_STR,
+                    steps: [
+                        { id: 101, text: 'اختيار أول 3 كتب في القائمة', done: true },
+                        { id: 102, text: 'قراءة 15 صفحة يومياً لمدة أسبوعين', done: false },
+                        { id: 103, text: 'تلخيص أهم الأفكار في الخزينة', done: false }
+                    ]
+                }
+            ],
+            habits: [
+                { id: 1, name: 'شرب 2 لتر ماء 💧', streak: 5, bestStreak: 12, history: [TODAY_STR] },
+                { id: 2, name: 'الرياضة والحركة 🏃', streak: 3, bestStreak: 9, history: [] },
+                { id: 3, name: 'القراءة والتعلم 📖', streak: 7, bestStreak: 14, history: [TODAY_STR] }
+            ],
+            weekly: {
+                'السبت': ['تخطيط الأسبوع وترتيب الأولويات'],
+                'الأحد': ['بدء تنفيذ مشروع الأسبوع'],
+                'الإثنين': [], 'الثلاثاء': [], 'الأربعاء': [], 'الخميس': [], 'الجمعة': ['راحة وتأمل ومراجعة']
+            },
+            backlog: ['ترتيب ملفات الحاسوب', 'تجربة وصفة صحية جديدة'],
+            journal: {},
+            vault: [
+                { id: 1, cat: 'ideas', text: 'فكرة تطبيق خفيف لتتبع العادات بدون إعلانات' },
+                { id: 2, cat: 'books', text: 'كتاب العادات الذرية - جيمس كلير' },
+                { id: 3, cat: 'skills', text: 'تحسين مهارات التخطيط وإدارة الوقت' }
+            ],
+            moments: [
+                { id: 1, title: 'بداية رحلة التنظيم الشخصي V4', date: TODAY_STR }
+            ]
+        };
+
+        function saveLifeData() {
+            localStorage.setItem('life_studio_v4', JSON.stringify(lifeData));
+            updateDashboardStats();
+        }
+
+        function exportV4Backup() {
+            const blob = new Blob([JSON.stringify(lifeData, null, 2)], { type: 'application/json' });
+            const a = document.createElement('a');
+            a.download = `life-studio-v4-${TODAY_STR}.json`;
+            a.href = URL.createObjectURL(blob);
+            a.click();
+            showToast('تم حفظ نسخة احتياطية كاملة');
+        }
+
+        function importV4Backup(e) {
+            const file = e.target.files[0];
+            if (!file) return;
+            const reader = new FileReader();
+            reader.onload = (ev) => {
+                try {
+                    lifeData = JSON.parse(ev.target.result);
+                    saveLifeData();
+                    renderAllV4Sections();
+                    showToast('تمت استعادة بياناتك بنجاح!');
+                } catch (err) { showToast('ملف غير صالح'); }
+            };
+            reader.readAsText(file);
+        }
+
+        // ---------------------------------------------------------
+        // 3. لوحة التوازن والملخص (Dashboard & Top 3)
+        // ---------------------------------------------------------
+        function renderTop3() {
+            document.getElementById('today-date-badge').textContent = new Date().toLocaleDateString('ar-EG', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
+            document.getElementById('top3-list').innerHTML = lifeData.top3.map((item, idx) => `
+                <div class="flex items-center gap-3 bg-white/15 backdrop-blur-sm px-4 py-2.5 rounded-2xl">
+                    <button onclick="toggleTop3(${idx})" class="w-6 h-6 rounded-lg border-2 border-white flex items-center justify-center text-xs font-black shrink-0 ${item.done ? 'bg-white text-sky-700' : ''}">
+                        ${item.done ? '✓' : idx + 1}
+                    </button>
+                    <input type="text" value="${item.text}" oninput="lifeData.top3[${idx}].text=this.value; saveLifeData()" class="bg-transparent text-white placeholder-sky-200 text-xs sm:text-sm font-bold w-full focus:outline-none ${item.done ? 'line-through opacity-75' : ''}">
+                </div>
+            `).join('');
+        }
+
+        function toggleTop3(idx) {
+            lifeData.top3[idx].done = !lifeData.top3[idx].done;
+            saveLifeData();
+            renderTop3();
+            if (lifeData.top3[idx].done) showToast('أحسنت! أتممت إحدى أولوياتك الثلاث 🎯');
+        }
+
+        function updateDashboardStats() {
+            // نسبة الروتين
+            const rtList = lifeData.routines[lifeData.activeRoutineTemplate] || [];
+            const rtDone = rtList.filter(r => r.done).length;
+            const rtPct = rtList.length ? Math.round((rtDone / rtList.length) * 100) : 0;
+            document.getElementById('dash-routine-pct').textContent = `${rtPct}%`;
+
+            // أطول سلسلة التزام
+            const best = lifeData.habits.reduce((max, h) => Math.max(max, h.bestStreak || 0, h.streak || 0), 0);
+            document.getElementById('dash-best-streak').textContent = `${best} يوم`;
+
+            // متوسط تقدم الأهداف
+            let totalSteps = 0, doneSteps = 0;
+            lifeData.goals.forEach(g => { totalSteps += g.steps.length; doneSteps += g.steps.filter(s => s.done).length; });
+            const goalsPct = totalSteps ? Math.round((doneSteps / totalSteps) * 100) : 0;
+            document.getElementById('dash-goals-pct').textContent = `${goalsPct}%`;
+
+            // متوسط الطاقة
+            const entries = Object.values(lifeData.journal);
+            if (entries.length) {
+                const avg = (entries.reduce((s, e) => s + Number(e.energy || 4), 0) / entries.length).toFixed(1);
+                document.getElementById('dash-avg-energy').textContent = `${avg} / 5`;
+            }
+
+            // أقرب مناسبة
+            const upcoming = lifeData.moments
+                .map(m => ({ ...m, diff: Math.ceil((new Date(m.date) - new Date(TODAY_STR)) / 86400000) }))
+                .filter(m => m.diff >= 0)
+                .sort((a, b) => a.diff - b.diff)[0];
+            if (upcoming) {
+                document.getElementById('dash-next-event-title').textContent = upcoming.title;
+                document.getElementById('dash-next-event-days').textContent = upcoming.diff === 0 ? 'اليوم!' : `متبقي ${upcoming.diff} يوم (${upcoming.date})`;
+            }
+        }
+
+        function pickRandomLifeIdea() {
+            if (!lifeData.vault.length) { showToast('خزينة الأفكار فارغة حالياً'); return; }
+            const pick = lifeData.vault[Math.floor(Math.random() * lifeData.vault.length)];
+            document.getElementById('dash-random-pick').textContent = `✨ ${pick.text}`;
+            showToast('تم اختيار اقتراح لك!');
+        }
+
+        // ---------------------------------------------------------
+        // 4. مصمم الروتين اليومي ووضع الخطوة الحالية (Daily Routine)
+        // ---------------------------------------------------------
+        function switchRoutineTemplate(tpl) {
+            lifeData.activeRoutineTemplate = tpl;
+            saveLifeData();
+            renderRoutine();
+        }
+
+        function renderRoutine() {
+            const tpl = lifeData.activeRoutineTemplate;
+            document.getElementById('routine-template-select').value = tpl;
+            const list = lifeData.routines[tpl] || [];
+
+            // تحديث شريط الخطوة الحالية
+            const nowItem = list.find(i => i.id === lifeData.nowRoutineId) || list.find(i => !i.done);
+            const nowTitleEl = document.getElementById('now-mode-title');
+            const nowMetaEl = document.getElementById('now-mode-meta');
+            const headerNowEl = document.getElementById('header-now-text');
+            const btnCompleteNow = document.getElementById('btn-complete-now');
+
+            if (nowItem) {
+                lifeData.nowRoutineId = nowItem.id;
+                nowTitleEl.textContent = nowItem.title;
+                nowMetaEl.textContent = `الوقت المحدد: ${nowItem.time || 'مرن'}`;
+                headerNowEl.textContent = `الآن: ${nowItem.title}`;
+                btnCompleteNow.classList.remove('hidden');
+            } else {
+                nowTitleEl.textContent = 'أتممت جميع فقرات روتينك اليوم! 🎉';
+                nowMetaEl.textContent = 'عمل رائع ومنظم';
+                headerNowEl.textContent = 'أتممت روتين اليوم بنجاح ✓';
+                btnCompleteNow.classList.add('hidden');
+            }
+
+            const periods = [
+                { key: 'morning', label: '🌅 فترة الصباح' },
+                { key: 'afternoon', label: '☀️ فترة الظهيرة' },
+                { key: 'evening', label: '🌇 فترة المساء' },
+                { key: 'night', label: '🌙 فترة الليل' }
+            ];
+
+            document.getElementById('routine-periods-grid').innerHTML = periods.map(p => {
+                const items = list.filter(i => i.period === p.key);
+                return `
+                    <div class="bg-white dark:bg-slate-900 p-5 rounded-3xl border border-slate-200 dark:border-slate-800 space-y-3">
+                        <h3 class="font-extrabold text-base text-sky-600">${p.label}</h3>
+                        <div class="space-y-2">
+                            ${items.map(item => `
+                                <div class="flex items-center justify-between gap-2 p-3 rounded-2xl bg-slate-50 dark:bg-slate-800/70 border ${item.id === lifeData.nowRoutineId ? 'border-sky-500' : 'border-slate-200/70 dark:border-slate-700'}">
+                                    <div onclick="toggleRoutineItem(${item.id})" class="flex items-center gap-2.5 cursor-pointer flex-1">
+                                        <span class="w-5 h-5 rounded-md border flex items-center justify-center text-xs ${item.done ? 'bg-sky-600 border-sky-600 text-white' : 'border-slate-400'}">${item.done ? '✓' : ''}</span>
+                                        <div>
+                                            <div class="text-xs font-bold ${item.done ? 'line-through text-slate-400' : ''}">${item.title}</div>
+                                            ${item.time ? `<span class="text-[10px] text-slate-400">${item.time}</span>` : ''}
+                                        </div>
+                                    </div>
+                                    <div class="flex items-center gap-1">
+                                        <button onclick="setNowRoutineItem(${item.id})" class="px-2 py-1 rounded-lg bg-sky-100 dark:bg-sky-950 text-sky-700 dark:text-sky-300 text-[10px] font-bold">تركيز الآن</button>
+                                        <button onclick="deleteRoutineItem(${item.id})" class="text-slate-400 hover:text-rose-500 text-xs px-1">✕</button>
+                                    </div>
+                                </div>
+                            `).join('') || '<p class="text-xs text-slate-400 py-3">لا توجد فقرات في هذه الفترة</p>'}
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        document.getElementById('routine-add-form').addEventListener('submit', (e) => {
+            e.preventDefault();
+            const tpl = lifeData.activeRoutineTemplate;
+            lifeData.routines[tpl].push({
+                id: Date.now(),
+                period: document.getElementById('rt-period').value,
+                time: document.getElementById('rt-time').value,
+                title: document.getElementById('rt-title').value.trim(),
+                done: false
+            });
+            e.target.reset();
+            saveLifeData();
+            renderRoutine();
+            showToast('تمت إضافة الفقرة للروتين');
+        });
+
+        function toggleRoutineItem(id) {
+            const list = lifeData.routines[lifeData.activeRoutineTemplate];
+            const item = list.find(i => i.id === id);
+            if (item) item.done = !item.done;
+            saveLifeData();
+            renderRoutine();
+        }
+
+        function setNowRoutineItem(id) {
+            lifeData.nowRoutineId = id;
+            saveLifeData();
+            renderRoutine();
+            showToast('تم تفعيل وضع التركيز على هذه الخطوة');
+        }
+
+        function completeCurrentRoutineStep() {
+            toggleRoutineItem(lifeData.nowRoutineId);
+            showToast('تم إنجاز الخطوة الحالية! الانتقال للتالية...');
+        }
+
+        function deleteRoutineItem(id) {
+            const tpl = lifeData.activeRoutineTemplate;
+            lifeData.routines[tpl] = lifeData.routines[tpl].filter(i => i.id !== id);
+            saveLifeData();
+            renderRoutine();
+        }
+
+        function resetRoutineDay() {
+            const list = lifeData.routines[lifeData.activeRoutineTemplate];
+            list.forEach(i => i.done = false);
+            lifeData.nowRoutineId = list[0]?.id || null;
+            saveLifeData();
+            renderRoutine();
+            showToast('تم تصفير الروتين لبدء يوم جديد 🌅');
+        }
+
+        // ---------------------------------------------------------
+        // 5. لوحة الأهداف الكبرى والمحطات (Life Goals)
+        // ---------------------------------------------------------
+        function renderGoals() {
+            const domainLabels = { edu: '🎓 تعليم وتطوير', health: '💪 صحة ولياقة', creative: '🎨 مشاريع وإبداع', personal: '🌱 عادات وشخصية' };
+            document.getElementById('goals-grid').innerHTML = lifeData.goals.map((g, gIdx) => {
+                const done = g.steps.filter(s => s.done).length;
+                const pct = g.steps.length ? Math.round((done / g.steps.length) * 100) : 0;
+                const daysIdle = Math.floor((new Date(TODAY_STR) - new Date(g.lastUpdated || TODAY_STR)) / 86400000);
+
+                return `
+                    <div class="bg-white dark:bg-slate-900 p-6 rounded-3xl border border-slate-200 dark:border-slate-800 space-y-4">
+                        <div class="flex items-start justify-between gap-2">
+                            <div>
+                                <span class="text-[11px] font-bold px-2.5 py-1 rounded-full bg-sky-50 dark:bg-sky-950 text-sky-600">${domainLabels[g.domain]}</span>
+                                <h3 class="font-extrabold text-lg mt-2">${g.title}</h3>
+                                <p class="text-[11px] ${daysIdle >= 4 ? 'text-amber-500 font-bold' : 'text-slate-400'}">
+                                    ${daysIdle === 0 ? 'تم التحديث اليوم ✓' : `آخر نشاط منذ ${daysIdle} يوم`}
+                                </p>
+                            </div>
+                            <button onclick="lifeData.goals.splice(${gIdx},1); saveLifeData(); renderGoals()" class="text-slate-400 hover:text-rose-500 text-xs">✕</button>
+                        </div>
+
+                        <div>
+                            <div class="flex justify-between text-xs font-bold mb-1">
+                                <span>نسبة الاكتمال</span>
+                                <span class="text-sky-600">${pct}%</span>
+                            </div>
+                            <div class="w-full h-2.5 rounded-full bg-slate-100 dark:bg-slate-800 overflow-hidden">
+                                <div class="h-full bg-sky-600 transition-all duration-300" style="width:${pct}%"></div>
+                            </div>
+                        </div>
+
+                        <div class="space-y-2">
+                            ${g.steps.map((s, sIdx) => `
+                                <div onclick="toggleGoalStep(${gIdx}, ${sIdx})" class="flex items-center gap-2.5 p-2.5 rounded-xl bg-slate-50 dark:bg-slate-800/70 cursor-pointer text-xs">
+                                    <span class="w-4 h-4 rounded border flex items-center justify-center ${s.done ? 'bg-emerald-500 border-emerald-500 text-white' : 'border-slate-400'}">${s.done ? '✓' : ''}</span>
+                                    <span class="${s.done ? 'line-through text-slate-400' : 'font-medium'}">${s.text}</span>
+                                </div>
+                            `).join('')}
+                        </div>
+
+                        <div class="flex gap-2 pt-1">
+                            <input type="text" id="new-step-input-${gIdx}" placeholder="أضف خطوة فرعية..." class="flex-1 px-3 py-2 rounded-xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-xs">
+                            <button onclick="addGoalStep(${gIdx})" class="px-3.5 py-2 rounded-xl bg-sky-600 text-white font-bold text-xs">+</button>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        document.getElementById('goal-form').addEventListener('submit', (e) => {
+            e.preventDefault();
+            lifeData.goals.unshift({
+                id: Date.now(),
+                title: document.getElementById('goal-title').value.trim(),
+                domain: document.getElementById('goal-domain').value,
+                lastUpdated: TODAY_STR,
+                steps: []
+            });
+            e.target.reset();
+            saveLifeData();
+            renderGoals();
+            showToast('تمت إضافة الهدف الجديد 🎯');
+        });
+
+        function addGoalStep(gIdx) {
+            const inp = document.getElementById(`new-step-input-${gIdx}`);
+            if (!inp.value.trim()) return;
+            lifeData.goals[gIdx].steps.push({ id: Date.now(), text: inp.value.trim(), done: false });
+            lifeData.goals[gIdx].lastUpdated = TODAY_STR;
+            saveLifeData();
+            renderGoals();
+        }
+
+        function toggleGoalStep(gIdx, sIdx) {
+            const g = lifeData.goals[gIdx];
+            g.steps[sIdx].done = !g.steps[sIdx].done;
+            g.lastUpdated = TODAY_STR;
+            saveLifeData();
+            renderGoals();
+        }
+
+        // ---------------------------------------------------------
+        // 6. متتبع العادات وسلسلة الالتزام وخريطة الشهر (Habits)
+        // ---------------------------------------------------------
+        function renderHabitsV4() {
+            // خريطة الالتزام لآخر 30 يوماً
+            const heatmapEl = document.getElementById('habit-heatmap-grid');
+            let cellsHtml = '';
+            for (let i = 29; i >= 0; i--) {
+                const d = new Date();
+                d.setDate(d.getDate() - i);
+                const dStr = d.toISOString().slice(0, 10);
+                const count = lifeData.habits.filter(h => (h.history || []).includes(dStr)).length;
+                let bg = 'bg-slate-200 dark:bg-slate-700';
+                if (count === 1) bg = 'bg-sky-200 dark:bg-sky-900';
+                else if (count === 2) bg = 'bg-sky-400 dark:bg-sky-700';
+                else if (count >= 3) bg = 'bg-sky-600 dark:bg-sky-500';
+                cellsHtml += `<div title="${dStr}: ${count} عادات منجزة" class="heatmap-cell h-7 rounded-lg ${bg} flex items-center justify-center text-[10px] font-bold ${count >= 2 ? 'text-white' : 'text-slate-500'}">${d.getDate()}</div>`;
+            }
+            heatmapEl.innerHTML = cellsHtml;
+
+            // بطاقات العادات
+            document.getElementById('habits-v4-cards').innerHTML = lifeData.habits.map((h, idx) => {
+                const doneToday = (h.history || []).includes(TODAY_STR);
+                return `
+                    <div class="bg-white dark:bg-slate-900 p-5 rounded-3xl border border-slate-200 dark:border-slate-800 flex flex-col justify-between gap-4">
+                        <div class="flex items-start justify-between">
+                            <div>
+                                <h3 class="font-extrabold text-base">${h.name}</h3>
+                                <div class="flex items-center gap-3 mt-1.5 text-xs">
+                                    <span class="font-bold text-amber-500">🔥 السلسلة: ${h.streak} يوم</span>
+                                    <span class="text-slate-400">الأعلى: ${h.bestStreak}</span>
+                                </div>
+                            </div>
+                            <button onclick="lifeData.habits.splice(${idx},1); saveLifeData(); renderHabitsV4()" class="text-slate-400 hover:text-rose-500 text-xs">✕</button>
+                        </div>
+
+                        <button onclick="toggleHabitToday(${idx})" class="w-full py-2.5 rounded-2xl font-bold text-xs transition-all ${doneToday ? 'bg-emerald-600 text-white' : 'bg-sky-50 dark:bg-sky-950 text-sky-700 dark:text-sky-300 hover:bg-sky-100'}">
+                            ${doneToday ? 'تم الإنجاز اليوم ✓' : 'تسجيل إنجاز اليوم'}
+                        </button>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        document.getElementById('habit-v4-form').addEventListener('submit', (e) => {
+            e.preventDefault();
+            const name = document.getElementById('habit-v4-name').value.trim();
+            if (!name) return;
+            lifeData.habits.push({ id: Date.now(), name, streak: 0, bestStreak: 0, history: [] });
+            e.target.reset();
+            saveLifeData();
+            renderHabitsV4();
+            showToast('تمت إضافة العادة');
+        });
+
+        function toggleHabitToday(idx) {
+            const h = lifeData.habits[idx];
+            h.history = h.history || [];
+            const pos = h.history.indexOf(TODAY_STR);
+            if (pos === -1) {
+                h.history.push(TODAY_STR);
+                h.streak += 1;
+                if (h.streak > h.bestStreak) h.bestStreak = h.streak;
+                showToast(`رائع! سلسلتك في "${h.name}" أصبحت ${h.streak} أيام 🔥`);
+            } else {
+                h.history.splice(pos, 1);
+                h.streak = Math.max(0, h.streak - 1);
+            }
+            saveLifeData();
+            renderHabitsV4();
+        }
+
+        // ---------------------------------------------------------
+        // 7. مخطط الأسبوع وصندوق المؤجلات (Weekly Planner)
+        // ---------------------------------------------------------
+        function renderWeeklyPlanner() {
+            const days = Object.keys(lifeData.weekly);
+            document.getElementById('weekly-days-grid').innerHTML = days.map(day => `
+                <div class="bg-white dark:bg-slate-900 p-4 rounded-3xl border border-slate-200 dark:border-slate-800 flex flex-col justify-between space-y-3">
+                    <div>
+                        <h4 class="font-extrabold text-sm text-sky-600 mb-2.5">${day}</h4>
+                        <div class="space-y-1.5">
+                            ${lifeData.weekly[day].map((item, idx) => `
+                                <div class="flex items-center justify-between gap-1 p-2 rounded-xl bg-slate-50 dark:bg-slate-800 text-xs">
+                                    <span>${item}</span>
+                                    <button onclick="lifeData.weekly['${day}'].splice(${idx},1); saveLifeData(); renderWeeklyPlanner()" class="text-slate-400 hover:text-rose-500">✕</button>
+                                </div>
+                            `).join('') || '<p class="text-[11px] text-slate-400">يوم مفتوح</p>'}
+                        </div>
+                    </div>
+                    <button onclick="addWeeklyItem('${day}')" class="w-full py-1.5 rounded-xl bg-slate-100 dark:bg-slate-800 hover:bg-sky-50 dark:hover:bg-sky-950 text-sky-600 text-xs font-bold">+ التزام</button>
+                </div>
+            `).join('');
+
+            document.getElementById('backlog-list').innerHTML = lifeData.backlog.map((item, idx) => `
+                <div class="p-2.5 rounded-xl bg-slate-50 dark:bg-slate-800 text-xs flex items-center justify-between gap-2">
+                    <span>${item}</span>
+                    <div class="flex items-center gap-1 shrink-0">
+                        <button onclick="moveBacklogToDay(${idx})" class="px-2 py-0.5 rounded bg-sky-100 dark:bg-sky-950 text-sky-700 dark:text-sky-300 text-[10px] font-bold">نقل ليوم</button>
+                        <button onclick="lifeData.backlog.splice(${idx},1); saveLifeData(); renderWeeklyPlanner()" class="text-rose-500">✕</button>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function addWeeklyItem(day) {
+            const txt = prompt(`أضف التزاماً ليوم ${day}:`);
+            if (!txt || !txt.trim()) return;
+            lifeData.weekly[day].push(txt.trim());
+            saveLifeData();
+            renderWeeklyPlanner();
+        }
+
+        document.getElementById('backlog-form').addEventListener('submit', (e) => {
+            e.preventDefault();
+            const inp = document.getElementById('backlog-input');
+            if (!inp.value.trim()) return;
+            lifeData.backlog.push(inp.value.trim());
+            inp.value = '';
+            saveLifeData();
+            renderWeeklyPlanner();
+        });
+
+        function moveBacklogToDay(idx) {
+            const day = prompt('اكتب اسم اليوم (السبت، الأحد، الإثنين، الثلاثاء، الأربعاء، الخميس، الجمعة):', 'السبت');
+            if (!day || !lifeData.weekly[day.trim()]) { showToast('اسم اليوم غير صحيح'); return; }
+            const [item] = lifeData.backlog.splice(idx, 1);
+            lifeData.weekly[day.trim()].push(item);
+            saveLifeData();
+            renderWeeklyPlanner();
+            showToast(`تم نقل المهمة إلى ${day.trim()}`);
+        }
+
+        // ---------------------------------------------------------
+        // 8. سجل اليوميات والمزاج (Daily Journal & Mood Log)
+        // ---------------------------------------------------------
+        let currentJournalMood = '😄 نشيط';
+
+        function selectJournalMood(mood) {
+            currentJournalMood = mood;
+            document.querySelectorAll('.mood-btn').forEach(b => {
+                b.classList.toggle('bg-sky-600', b.textContent === mood);
+                b.classList.toggle('text-white', b.textContent === mood);
+            });
+        }
+
+        function loadJournalEntryForDate(dateStr) {
+            document.getElementById('journal-date-picker').value = dateStr;
+            const entry = lifeData.journal[dateStr] || { mood: '😄 نشيط', energy: 4, win: '', gratitude: '', notes: '' };
+            selectJournalMood(entry.mood);
+            document.getElementById('journal-energy').value = entry.energy;
+            document.getElementById('energy-val-label').textContent = `${entry.energy} / 5`;
+            document.getElementById('j-win').value = entry.win;
+            document.getElementById('j-gratitude').value = entry.gratitude;
+            document.getElementById('j-notes').value = entry.notes;
+        }
+
+        function saveJournalEntry() {
+            const d = document.getElementById('journal-date-picker').value || TODAY_STR;
+            lifeData.journal[d] = {
+                mood: currentJournalMood,
+                energy: document.getElementById('journal-energy').value,
+                win: document.getElementById('j-win').value,
+                gratitude: document.getElementById('j-gratitude').value,
+                notes: document.getElementById('j-notes').value
+            };
+            saveLifeData();
+            renderJournalArchive();
+            showToast('تم حفظ التدوينة في سجلك الشخصي 📖');
+        }
+
+        function renderJournalArchive() {
+            const q = document.getElementById('journal-search').value.trim().toLowerCase();
+            const dates = Object.keys(lifeData.journal).sort().reverse();
+            const filtered = dates.filter(d => {
+                const e = lifeData.journal[d];
+                return d.includes(q) || (e.win + e.gratitude + e.notes).toLowerCase().includes(q);
+            });
+
+            document.getElementById('journal-archive-list').innerHTML = filtered.map(d => {
+                const e = lifeData.journal[d];
+                return `
+                    <div onclick="loadJournalEntryForDate('${d}')" class="p-3.5 rounded-2xl bg-slate-50 dark:bg-slate-800/70 border border-slate-200/70 dark:border-slate-700 cursor-pointer hover:border-sky-500 space-y-1">
+                        <div class="flex justify-between text-xs font-bold">
+                            <span class="text-sky-600">${d}</span>
+                            <span>${e.mood} • طاقة ${e.energy}/5</span>
+                        </div>
+                        <p class="text-xs font-bold truncate">${e.win || e.notes || 'تدوينة بدون عنوان'}</p>
+                    </div>
+                `;
+            }).join('') || '<p class="text-xs text-slate-400 text-center py-6">لا توجد تدوينات محفوظة بعد</p>';
+        }
+
+        // ---------------------------------------------------------
+        // 9. خزينة الأفكار والقوائم (Idea Vault & Life Lists)
+        // ---------------------------------------------------------
+        function renderVault() {
+            const cats = [
+                { key: 'ideas', label: '💡 أفكار ومشاريع' },
+                { key: 'books', label: '📚 كتب ومقالات' },
+                { key: 'skills', label: '🚀 مهارات للتعلم' },
+                { key: 'watch', label: '🎬 أفلام / أنمي' },
+                { key: 'places', label: '📍 أماكن وتجارب' }
+            ];
+
+            document.getElementById('vault-categories-grid').innerHTML = cats.map(c => {
+                const items = lifeData.vault.filter(v => v.cat === c.key);
+                return `
+                    <div class="bg-white dark:bg-slate-900 p-5 rounded-3xl border border-slate-200 dark:border-slate-800 space-y-3">
+                        <h3 class="font-extrabold text-sm text-sky-600">${c.label} (${items.length})</h3>
+                        <div class="space-y-2">
+                            ${items.map(it => `
+                                <div class="flex items-center justify-between gap-2 p-2.5 rounded-xl bg-slate-50 dark:bg-slate-800 text-xs">
+                                    <span>${it.text}</span>
+                                    <button onclick="deleteVaultItem(${it.id})" class="text-slate-400 hover:text-rose-500">✕</button>
+                                </div>
+                            `).join('') || '<p class="text-[11px] text-slate-400">القائمة فارغة</p>'}
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        document.getElementById('vault-form').addEventListener('submit', (e) => {
+            e.preventDefault();
+            lifeData.vault.unshift({
+                id: Date.now(),
+                text: document.getElementById('vault-item-text').value.trim(),
+                cat: document.getElementById('vault-item-cat').value
+            });
+            e.target.reset();
+            saveLifeData();
+            renderVault();
+            showToast('تم الحفظ في الخزينة');
+        });
+
+        function deleteVaultItem(id) {
+            lifeData.vault = lifeData.vault.filter(v => v.id !== id);
+            saveLifeData();
+            renderVault();
+        }
+
+        function decideFromVault() {
+            if (!lifeData.vault.length) { showToast('أضف عناصر للخزينة أولاً'); return; }
+            const pick = lifeData.vault[Math.floor(Math.random() * lifeData.vault.length)];
+            showToast(`🎲 الاقتراح المختار لك: ${pick.text}`);
+        }
+
+        // ---------------------------------------------------------
+        // 10. عدّاد اللحظات والمناسبات الخاصة (Life Moments)
+        // ---------------------------------------------------------
+        function renderMoments() {
+            document.getElementById('moments-grid').innerHTML = lifeData.moments.map((m, idx) => {
+                const diffDays = Math.ceil((new Date(m.date) - new Date(TODAY_STR)) / 86400000);
+                const isFuture = diffDays > 0;
+                const isToday = diffDays === 0;
+                return `
+                    <div class="bg-white dark:bg-slate-900 p-6 rounded-3xl border border-slate-200 dark:border-slate-800 flex flex-col justify-between gap-4">
+                        <div class="flex items-start justify-between">
+                            <div>
+                                <span class="text-[11px] font-bold px-2.5 py-0.5 rounded-full ${isFuture ? 'bg-sky-50 text-sky-600 dark:bg-sky-950' : 'bg-emerald-50 text-emerald-600 dark:bg-emerald-950'}">
+                                    ${isToday ? 'اليوم!' : isFuture ? 'عدّ تنازلي' : 'أيام منقضية'}
+                                </span>
+                                <h3 class="font-extrabold text-base mt-2">${m.title}</h3>
+                                <p class="text-xs text-slate-400 mt-0.5">${m.date}</p>
+                            </div>
+                            <button onclick="lifeData.moments.splice(${idx},1); saveLifeData(); renderMoments()" class="text-slate-400 hover:text-rose-500 text-xs">✕</button>
+                        </div>
+
+                        <div class="text-3xl font-black text-sky-600">
+                            ${isToday ? '🎉 اليوم هو الموعد' : isFuture ? `متبقي ${diffDays} يوم` : `مرّ ${Math.abs(diffDays)} يوم`}
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        document.getElementById('moment-form').addEventListener('submit', (e) => {
+            e.preventDefault();
+            lifeData.moments.unshift({
+                id: Date.now(),
+                title: document.getElementById('moment-title').value.trim(),
+                date: document.getElementById('moment-date').value
+            });
+            e.target.reset();
+            saveLifeData();
+            renderMoments();
+            showToast('تمت إضافة المناسبة للعدّاد');
+        });
+
+        // ---------------------------------------------------------
+        // التهيئة الشاملة للتطبيق
+        // ---------------------------------------------------------
+        function renderAllV4Sections() {
+            renderV4Tabs();
+            renderTop3();
+            renderRoutine();
+            renderGoals();
+            renderHabitsV4();
+            renderWeeklyPlanner();
+            loadJournalEntryForDate(TODAY_STR);
+            renderJournalArchive();
+            renderVault();
+            renderMoments();
+            updateDashboardStats();
+        }
+
+        renderAllV4Sections();
+    </script>
+</body>
+</html>
